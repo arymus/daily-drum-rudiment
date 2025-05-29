@@ -1,69 +1,111 @@
 from bs4 import BeautifulSoup
 import requests; import random
 
-def get_rudiment():
-    url = "https://www.40drumrudiments.com"
-    scrape = requests.get(url)
-    soup = BeautifulSoup(scrape.text, "html.parser")
-    links_html = [a for a in soup.find_all("a", href = True) if not a.has_attr("class")]
-    links = []
+# Function to scrape data at a certain URL and parse it into HTML
+def scrape_soup(url):
+    # HTTP headers to send along with the requests we make
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36' # User agent which contains data about my laptop to ensure the correect content is served in the response
+    }
 
+    # Send a GET request to the URL
+    # Send the headers from before as the request header
+    scrape = requests.get(url, headers = headers)
+
+    # Take the stext returned by the scrape (aka the HTML content but as plaintext)
+    # Pass the plaintext through the HTML parser to be returned as HTML
+    soup = BeautifulSoup(scrape.text, "html.parser")
+
+    return soup # Return the data as HTML
+
+# Function to get a random rudiment
+def get_rudiment():
+    content = scrape_soup("https://www.40drumrudiments.com") # Get the HTML content from https://www.40drumrudiments.com
+
+    # links_html is a list that iterates through every <a> tag with an href attribute as a and filters out the ones that do not have a class attribute
+    links_html = [a for a in content.find_all("a", href = True) if not a.has_attr("class")]
+    links = [] # An empty list for storing the raw links
+
+    # For each link in links_html, where an individual link is i
     for i in links_html:
-        link = i.get("href")
+        link = i.get("href") # Get the href attribute of i, the link
+
+        # Create a rudiment_data dictionary to hold data
         rudiment_data = {
-            "name": i.string,
-            "url": f"https://www.40drumrudiments.com{link}"
+            "name": i.string, # Get the text content from the <a> tag and set it as the name of the rudiment
+            "url": f"https://www.40drumrudiments.com{link}" # Concatenate the link with the homepage as the URL because the link returns as a subdirectory of the homepage
         }
 
-        links.append(rudiment_data)
+        links.append(rudiment_data) # Add the rudiment data to the list of raw links
     
-    daily_rudiment = random.choice(links)
-    return daily_rudiment
+    return random.choice(links) # Return a randomly rudiment from the list of raw links
 
 
-# Function to scrape the link of the drum rudiment
+# Function to get the youtube tutorial on how to play the rudiment
 def get_video(rudiment):
-    scrape = requests.get(rudiment["url"]) # Send a GET request to the rudiment link
-    soup = BeautifulSoup(scrape.text, "html.parser") # Take the data and parse it into HTML
-    video_frame = soup.find("iframe") # Return an array containing the <iframe> tag in the page
+    content = scrape_soup(rudiment["url"]) # Get the HTML content from the rudiment's URL
+    video_frame = content.find("iframe") # Return the <iframe> tag in the page, which holds the youtube tutorial video
     
-    iframe_scrape = requests.get(video_frame.get("src"))
-    iframe_soup = BeautifulSoup(iframe_scrape.text, "html.parser")
-    link = iframe_soup.find("a")
+    iframe_content = scrape_soup(video_frame.get("src")) # Get the HTML content from the link in the src attribute of the <iframe> tag
+    link = iframe_content.find("a") # Retrieve the first <a> tag from the HTML
     
-    return link.get("href") # Return the href of the link (the website it takes you to)
+    return link.get("href") # Return the href of the <a> tag (the website it takes you to)
 
+
+# Function to get the thumbnail from a URL and write it to an image
 def get_thumbnail(url):
-    scrape = requests.get(url)
-    soup = BeautifulSoup(scrape.text, "html.parser")
-    thumbnail = soup.find("meta", property = "og:image")['content']
-    print(f"Thumbnail URL: {thumbnail}")
+    content = scrape_soup(url) # Get the HTML content of the URL passed to the function
+    thumbnail = content.find("meta", property = "og:image")['content']
+    print(f"Thumbnail URL: {thumbnail}") # Print the URL
 
     # Try to get extension from URL
-    import os
-    ext = os.path.splitext(thumbnail)[1].lower()
-    if ext not in ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp']:
-        ext = '.jpg'  # Default to jpg if unknown
-    filename = f"rudiment_thumbnail{ext}"
+    import os # Import os for handling OS functions with Python
 
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'
-    }
+    # os.path.splittext splits the file name of the thumbnail from its extension and puts them into an array
+    # [1] gets the second item from the split array, which would be the file extension
+    # .lower() makes the extension lowercase
+    ext = os.path.splitext(thumbnail)[1].lower()
+
+    # If the extension isn't jpg, jpeg, png, gif, bmp, or webp
+    if ext not in ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp']:
+        ext = '.jpg'  # Default to jpg
+
+    filename = f"rudiment_thumbnail{ext}" # Set filename to be rudiment_thumbnail with the extension that's found
+
+    # Try to run this code block and catch errors
     try:
-        img_scrape = requests.get(thumbnail, headers=headers, allow_redirects=True)
-        print(f"Image HTTP status: {img_scrape.status_code}")
-        print(f"Image content length: {len(img_scrape.content)} bytes")
-        print(f"Final image URL after redirects: {img_scrape.url}")
+
+        # Send a GET request to the thumbnail's URL
+        # Send the user agent in the header, which contains information about my laptop to ensure the correct content is served in the response
+        img_scrape = requests.get(thumbnail, headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'})
+
+        # Print data about the image to the console
+        print(f"Image HTTP status: {img_scrape.status_code}") # HTTP status code
+        print(f"Final image URL after redirects: {img_scrape.url}") # Image URL
+
+        # If the status code is 200 (OK)
         if img_scrape.status_code == 200:
+
+            # If the scrape contains content
             if img_scrape.content:
+
+                # Open the file in write-binary mode, represented as file
                 with open(filename, "wb") as file:
-                    file.write(img_scrape.content)
-                    print(f"Image written as {filename}!")
-                return filename
+                    file.write(img_scrape.content) # Write the image's binary data to the file
+                    print(f"Image written as {filename}!") # Print a success messagej
+
+                return filename # Return the file
+
+            # If else (image scrape is empty)
             else:
-                print("Image content is empty!")
+                print("Image content is empty!") # Print warning
+        
+        # If else (status code isn't 200, aka an ERROR)
         else:
-            print("HTTP error! Status code: " + str(img_scrape.status_code))
+            print("HTTP error! Status code: " + str(img_scrape.status_code)) # Print HTTP error
+
+    # Catch any errors, defined as e
     except Exception as e:
-        print(f"Exception occurred while downloading image: {e}")
-    return None
+        print(f"Exception occurred while downloading image: {e}") # Print the error
+
+    return None # Return none

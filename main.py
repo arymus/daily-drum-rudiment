@@ -37,6 +37,7 @@ def open_image(filename):
         return None # Return none
 
     img = Image.open(filename) # Open the file as an image
+    img = img.resize((800, 500))
     print("Image mode:", img.mode, "size:", img.size) # Print image data (mode: the colors it uses, size: the size in bytes)
     return ImageTk.PhotoImage(img) # Return the image as a TK PhotoImage
 

@@ -28,27 +28,29 @@ rudiment_label.bind("<Button-1>", lambda _: webbrowser.open_new(daily_rudiment["
 timer = tk.Button(win, text = "Start timer", command = timer) # Create a button that calls the timer function when clicked
 rudiment_label.pack() # Add the rudiment label to the window
 
-def open_image():
-    if not os.path.exists("rudiment_thumbnail.png") or os.path.getsize("rudiment_thumbnail.png") == 0:
+def open_image(filename):
+    if not filename or not os.path.exists(filename) or os.path.getsize(filename) == 0:
         print("Image does not exist or is empty")
         return None
 
-    img = Image.open("rudiment_thumbnail.png")
+    img = Image.open(filename)
     print("Image mode:", img.mode, "size:", img.size)
     return ImageTk.PhotoImage(img)
 
 video = web_scraper.get_video(daily_rudiment) # Call the get_video() function from web_scraper.py with the rudiment passed to it
-thumbnail = web_scraper.get_thumbnail(video) # Call the get_thumbnail() function from web_scraper.py with the video URL passed to it
+thumbnail_file = web_scraper.get_thumbnail(video)
 
-video_label = tk.Label(win, image = open_image()) # Create a label that has the the thumbnail of the video
-video_label.bind("<Button-1>", lambda _: webbrowser.open_new(video)) # Bind an event listener to to open the url in the lambda function on a left click
+# Store the PhotoImage object to prevent garbage collection
+thumbnail_img = open_image(thumbnail_file)
+video_label = tk.Label(win, image=thumbnail_img)
+video_label.bind("<Button-1>", lambda _: webbrowser.open_new(video))
 video_label.pack() # Add the link label to the window
 
 timer.pack()
 
 def delete_image_data(event):
-    if event.widget == win:
-        with open("rudiment_thumbnail.png", "wb") as file:
+    if event.widget == win and thumbnail_file:
+        with open(thumbnail_file, "wb") as file:
             file.seek(0)
             file.truncate()
             print("File emptied successfully!")

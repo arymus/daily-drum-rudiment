@@ -45,6 +45,10 @@ python main.py
 ## License
 AGPL-3.0-or-later, see [LICENSE](LICENSE.md) for details.
 
+## Why?
+As a drummer, learning drum rudiments are important to work on skills like timing, hand speed, and learning new playing techniques.
+Also, I did it to impress my music teacher and to show him I'm truly serious about improving my playing.
+
 ---
 
 *Made by Ary and [Fluf](https://github.com/ofluffydev/) :3*

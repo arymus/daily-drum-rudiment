@@ -2,7 +2,7 @@
 import tkinter as tk # Tkinter
 from PIL import Image, ImageTk # Import image modules from PIL (Python Imaging Library)
 from tkdial import Dial # Import the Dial from tkdial
-import web_scraper; import metronome; import timer_functions # Import web_scraper.py and metronome.py
+import web_scraper; import timer_functions # Import web_scraper.py and timer_functions.py
 import webbrowser # Import webbrowser to interact with the user's browser
 
 # Function to get the image as a TK PhotoImage using PIL

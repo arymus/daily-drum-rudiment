@@ -22,7 +22,8 @@ def get_rudiment():
     links_html = [a for a in content.find_all("a", href = True) if not a.has_attr("class")]
     rudiments = [] # An empty list for storing the rudiments
 
-    links_html.pop(0) # Remoe the first item from the list because the first item is a link to the home page, which causes an error if it's selected as the rudiment
+    links_html.pop(0) # Remove the first item from the list because the first item is a link to the home page, which causes an error if it's selected as the rudiment
+
     # For each link in links_html, where an individual link is i
     for i in links_html:
 
@@ -67,7 +68,9 @@ def get_thumbnail(url):
     if ext not in ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp']:
         ext = '.jpg'  # Default to jpg
 
-    filename = f"assets/rudiment_thumbnail{ext}" # Set filename to be rudiment_thumbnail with the extension that's found (and it;s place in the file tree)
+    import os # Import os for handling OS-dependent functions
+    ASSETS_PATH = os.path.join(os.path.dirname(__file__), "assets") # Get the directory of the current file and concatenate it with the assets folder (because main.py is inside src, the directory is src)
+    filename = f"{ASSETS_PATH}/rudiment_thumbnail{ext}" # Set filename to be rudiment_thumbnail with the extension that's found (and it;s place in the file tree)
 
     # Try to run this code block and catch errors
     try:

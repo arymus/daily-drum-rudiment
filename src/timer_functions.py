@@ -1,19 +1,22 @@
-import tkinter as tk
+import tkinter as tk # Tkinter
+import metronome # Import metronome.py
+
 timer_label = None # Initialize timer_label as None
 pause_button = None # Initialize pause_button as None
 
 # Function to pause the timer
-def pause(button, time, timer, remaining, root, timer_button):
+def pause(button, time, timer, remaining, root, timer_button, audio_obj):
     root.after_cancel(timer) # Stop the timer
 
     if remaining >= 60: time.config(text = f"{remaining // 60}:{(remaining % 60):02d}") # If the remaining time is a minute or above, display the time in minutes:seconds
     else: time.config(text = f"There are {remaining} seconds left.") # If the remaining seconds are less than a minute, display only the seconds
 
     button.config(text = "Play", command = lambda: start_timer(remaining, root, timer_button)) # Change the text and function of the button
-
+    metronome.stop(audio_obj) # Stop the metronome with the necessary data
 
 # Function for starting a timer with a set amount of seconds
 def start_timer(seconds, root, timer_button):
+    audio_obj = metronome.play(120, root) # Activate the metronome at 120bpm
     global timer_label # Define timer_label as a global variable
     global pause_button # Define pause_button as a global variable
 
@@ -55,6 +58,7 @@ def start_timer(seconds, root, timer_button):
             timer_button.config(command = lambda: start_timer(30, root, timer_button)) # Add the timer command back to the timer button
 
             def erase_label(id):
+                metronome.stop(audio_obj) # Stop the metronome with the necessary data
                 global timer_label # Define timer_label as a global variable
                 global pause_button # Define pause_button as a global variable
                 

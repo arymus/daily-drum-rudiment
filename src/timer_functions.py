@@ -7,7 +7,6 @@ pause_button = None # Initialize pause_button as None
 # Function to pause the timer
 def pause(button, time, timer, remaining, root, timer_button, audio_obj):
     root.after_cancel(timer) # Stop the timer
-
     if remaining >= 60: time.config(text = f"{remaining // 60}:{(remaining % 60):02d}") # If the remaining time is a minute or above, display the time in minutes:seconds
     else: time.config(text = f"There are {remaining} seconds left.") # If the remaining seconds are less than a minute, display only the seconds
 
@@ -16,15 +15,16 @@ def pause(button, time, timer, remaining, root, timer_button, audio_obj):
 
 # Function for starting a timer with a set amount of seconds
 def start_timer(seconds, root, timer_button):
-    audio_obj = metronome.play(120, root) # Activate the metronome at 120bpm
     global timer_label # Define timer_label as a global variable
     global pause_button # Define pause_button as a global variable
+    
+    timer_button.config(command = None, state = "disabled") # Set the button to be disabled so it can't be clicked again
+    audio_obj = metronome.play(120, root) # Activate the metronome at 120bpm
 
     # If timer_label is None (doesn't exist)
     if timer_label == None:
         timer_label = tk.Label(root, bg = "#EDD9CC", fg = "#B20808", font = ("Arial", 15, "bold")) # Create a tkinter label containing the amount of time left on the timer
         timer_label.pack(ipadx = 10, ipady = 10, padx = 10, pady = 10) # Add the timer to the window
-        timer_button.config(command = None) # Change the command of the timer button to do nothing so that it doesn't interfere with the main timer
 
     # If the pause button is still None
     if pause_button == None:
@@ -49,14 +49,13 @@ def start_timer(seconds, root, timer_button):
             # set the display message to display the remaining amount of minutes and seconds
             if remaining >= 60: display = f"{remaining // 60}:{(remaining % 60):02d}"
             else: display = f"There are {remaining} seconds left." # If else (seconds are less than 60), display the amount of seconds
-
             timer_label.config(text = display) # Configure the timer label to contain the display message
 
         # If else (the timer is 0), change the text of the label to "Time's up!"
         else:
             timer_label.config(text = "Time's up!") # Change the text of the timer label
-            timer_button.config(command = lambda: start_timer(seconds, root, timer_button)) # Add the timer command back to the timer button
 
+            # Function to erase the timer-associated labels
             def erase_label(id):
                 metronome.stop(audio_obj) # Stop the metronome with the necessary data
                 global timer_label # Define timer_label as a global variable
@@ -72,5 +71,6 @@ def start_timer(seconds, root, timer_button):
 
             timed_event = root.after(1500, lambda: erase_label(timed_event)) # Create a win.after() event that erases the label after 1.5 seconds
             root.after_cancel(timer) # Cancel the countdown timer
+            timer_button.config(command = lambda: start_timer(seconds, root, timer_button), state = "normal") # Add the timer command back to the timer button and reenable it
 
     update_timer(seconds) # Call the update_timer function with the amount of seconds passed to it

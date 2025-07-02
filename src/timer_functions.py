@@ -55,7 +55,7 @@ def start_timer(seconds, root, timer_button):
         # If else (the timer is 0), change the text of the label to "Time's up!"
         else:
             timer_label.config(text = "Time's up!") # Change the text of the timer label
-            timer_button.config(command = lambda: start_timer(30, root, timer_button)) # Add the timer command back to the timer button
+            timer_button.config(command = lambda: start_timer(seconds, root, timer_button)) # Add the timer command back to the timer button
 
             def erase_label(id):
                 metronome.stop(audio_obj) # Stop the metronome with the necessary data

@@ -5,13 +5,13 @@ timer_label = None # Initialize timer_label as None
 pause_button = None # Initialize pause_button as None
 
 # Function to pause the timer
-def pause(button, time, timer, remaining, root, timer_button, audio_obj):
+def pause(button, time, timer, remaining, root, timer_button, event_id):
     root.after_cancel(timer) # Stop the timer
     if remaining >= 60: time.config(text = f"{remaining // 60}:{(remaining % 60):02d}") # If the remaining time is a minute or above, display the time in minutes:seconds
     else: time.config(text = f"There are {remaining} seconds left.") # If the remaining seconds are less than a minute, display only the seconds
 
     button.config(text = "Play", command = lambda: start_timer(remaining, root, timer_button)) # Change the text and function of the button
-    metronome.stop(audio_obj) # Stop the metronome with the necessary data
+    metronome.stop(event_id, root) # Stop the metronome with the necessary data
 
 # Function for starting a timer with a set amount of seconds
 def start_timer(seconds, root, timer_button):
@@ -19,7 +19,7 @@ def start_timer(seconds, root, timer_button):
     global pause_button # Define pause_button as a global variable
 
     timer_button.config(command = None, state = "disabled") # Set the button to be disabled so it can't be clicked again
-    audio_obj = metronome.play(120, root) # Activate the metronome at 120bpm
+    event_id = metronome.play(120, root) # Activate the metronome at 120bpm
 
     # If timer_label is None (doesn't exist)
     if timer_label == None:
@@ -57,7 +57,7 @@ def start_timer(seconds, root, timer_button):
 
             # Function to erase the timer-associated labels
             def erase_label(id):
-                metronome.stop(audio_obj) # Stop the metronome with the necessary data
+                metronome.stop(event_id, root) # Stop the metronome with the necessary data
                 global timer_label # Define timer_label as a global variable
                 global pause_button # Define pause_button as a global variable
                 

@@ -17,7 +17,7 @@ def pause(button, time, timer, remaining, root, timer_button, audio_obj):
 def start_timer(seconds, root, timer_button):
     global timer_label # Define timer_label as a global variable
     global pause_button # Define pause_button as a global variable
-    
+
     timer_button.config(command = None, state = "disabled") # Set the button to be disabled so it can't be clicked again
     audio_obj = metronome.play(120, root) # Activate the metronome at 120bpm
 
